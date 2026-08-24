@@ -35,3 +35,24 @@ outputs/
 
 # OS
 Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Study data and outputs — never committed.
+# Belt-and-braces: catches these anywhere in the tree, not just data/ and
+# outputs/, in case a file is ever generated or copied elsewhere.
+# ---------------------------------------------------------------------------
+LiveMedBench_v*.json
+Subset_LiveMedBench_*.json
+LiveMedBench_our_study.json
+input_*.json
+evaluation_results_*.json
+model_results_*.json
+analysis_summary.json
+readable_reports.txt
+metric_results*.txt
+metric_results_by_axis*.csv
+cases-to-consider.xlsx
+*Form_Responses*.csv
+
+# Credentials
+*.key
