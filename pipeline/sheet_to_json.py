@@ -8,7 +8,7 @@ that the LiveMedBench evaluation pipeline consumes, by joining each submitted
 response against the case metadata in Subset_LiveMedBench_v202604_new.json
 (produced by STAGE 1, pipeline/prepare_subset.py).
 
-Primary output — one file per model, matching input_OE_2026-08-10.json:
+Primary output — one file per model:
 
     outputs/input_<MODEL>_<DATE>.json
         [{"case_id", "post_time", "narrative", "core_request",
@@ -19,14 +19,11 @@ Primary output — one file per model, matching input_OE_2026-08-10.json:
     causes collisions). Duplicate submissions of the same case_id for the same
     model are reduced to the first submission, for the same reason.
 
-Secondary outputs — unchanged from the original script, retained for review:
+Secondary outputs:
 
     outputs/model_results_<model>.json    raw response text per case
     outputs/analysis_summary.json         word / reference / year metrics
     outputs/readable_reports.txt          plain-language physician summaries
-
-How to get the input CSV:
-    In Google Sheets: File > Download > Comma Separated Values (.csv)
 
 Usage:
     python3 pipeline/sheet_to_json.py \
@@ -59,7 +56,7 @@ COLUMN_MAP = {
 
 # ---------------------------------------------------------------------------
 # Text analysis (heading detection extended to cover References, Sources,
-# Bibliography, Works Cited, Literature — per Vanessa's 7/20 email and
+# Bibliography, Works Cited, Literature — 
 # verified against OpenEvidence + Doximity real cases)
 # ---------------------------------------------------------------------------
 
@@ -218,9 +215,9 @@ def extract_publication_year(reference: str) -> Optional[int]:
 
 def check_source_domain_contamination(reference_text: str, source_url: str = "") -> dict:
     """
-    Simple substring check (not an LLM task) confirming no reference cites
+    Simple substring check confirming no reference cites
     the original case-source domains (iCliniq.com or studentdoctor.net).
-    Flags possible retrieval/training contamination per Bob Hoyt's request.
+    Flags possible retrieval/training contamination.
     """
     combined = f"{reference_text}\n{source_url}".lower()
     flagged_domains = [
@@ -235,7 +232,7 @@ def check_source_domain_contamination(reference_text: str, source_url: str = "")
 
 def analyze_document(text: str, source_url: str = "") -> dict:
     """
-    Returns, per Vanessa's spec (7/23 email):
+    Returns:
       1. main_text_word_count      - word count of main chunk
       2. total_reference_count     - number of references found
       3. reference_years           - list of {reference_number, year}, where
@@ -244,8 +241,7 @@ def analyze_document(text: str, source_url: str = "") -> dict:
       5. references_found_heading  - whether a References/Sources/etc.
                                       heading was located at all
 
-    Also includes a simple substring-based contamination check (Bob's
-    7/23 request) confirming no reference cites icliniq.com or
+    Also includes a simple substring-based contamination check confirming no reference cites icliniq.com or
     studentdoctor.net, the original case-source domains.
     """
     main_text, reference_text = split_main_text_and_references(text)
