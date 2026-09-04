@@ -1,10 +1,5 @@
 # LiveMedBench: A Contamination-Free Medical Benchmark for LLMs with Automated Rubric Evaluation
 
-[![arXiv](https://img.shields.io/badge/arXiv-2602.10367-b31b1b.svg)](https://arxiv.org/abs/2602.10367)
-[![Hugging Face Datasets](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Datasets-blue)](https://huggingface.co/datasets/JuelieYann/LiveMedBench/)
-[![Website](https://img.shields.io/badge/Website-LiveMedBench-green)](https://zhilingyan.github.io/LiveMedBench/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
 **LiveMedBench** is a continuously updated, contamination-free, and rubric-based benchmark for evaluating LLMs on **real-world medical cases**. It is designed to measure not only overall medical quality, but also **robustness over time** and **alignment with physician judgment**.
 
 > **Key Stats:** 2,756 real-world cases | 38 medical specialties | 16,702 unique evaluation criteria | 38 LLMs evaluated | Multilingual (EN/ZH)
@@ -29,8 +24,6 @@
 
 ## Framework Overview
 
-![LiveMedBench Pipeline](fig/livemedbench_pipeline.png)
-
 The LiveMedBench pipeline consists of five phases:
 1. **Data Collection**: Continuous mining of bilingual clinical data from verified online medical communities.
 2. **Multi-Agent Curation**: A hierarchical framework (Screener, Validator, Controller) structures and validates data against medical guidelines.
@@ -42,8 +35,6 @@ The LiveMedBench pipeline consists of five phases:
 
 ## Benchmark Challenges
 
-![LiveMedBench Challenges](fig/livemedbench_challenges.png)
-
 - **84% of models** exhibit performance degradation on post-cutoff cases, confirming pervasive data contamination.
 - **35-48% of failures** stem from contextual application errors (not factual knowledge gaps).
 - Even the best model (GPT-5.2) achieves only **39.2%**, leaving significant room for improvement.
@@ -51,8 +42,6 @@ The LiveMedBench pipeline consists of five phases:
 ---
 
 ## Data Statistics
-
-![LiveMedBench Data Statistics](fig/livemedbench_fig_1.png)
 
 | Statistic | Value |
 |---|---|
@@ -70,8 +59,6 @@ The LiveMedBench pipeline consists of five phases:
 ## Leaderboard
 
 > Results on the **full LiveMedBench dataset** (2,756 cases). All models evaluated in a zero-shot setting with temperature 0. Scores represent the mean normalized rubric-based score (higher is better). Full results are available in the [paper](https://arxiv.org/abs/2602.10367).
-
-![LiveMedBench Results](fig/livemedbench_fig_2.png)
 
 | Rank | Model | Type | Score (%) |
 |:----:|-------|------|:---------:|
@@ -121,6 +108,26 @@ LiveMedBench/
 ---
 
 ## Quick Start
+
+### 0. Create 100-case subset dataset
+
+This create the dataset with 100 cases
+
+```bash
+python pipeline/prepare_subset.py \
+--cases-file ./data/subset-livemedbench/cases-to-consider.xlsx \
+--input-file ./data/LiveMedBench_v202604_new.json \
+--output-file ./data/subset-livemedbench/Subset_LiveMedBench_v202604_new.json
+```
+
+This generates a json file per model
+
+```bash
+python pipeline/sheet_to_json.py \
+--input-csv ./data/LiveMedBench\ Study\ \(Responses\)\ -\ Form\ Responses.csv \
+--subset-file ./data/subset-livemedbench/Subset_LiveMedBench_v202604_new.json \
+--output-dir ./outputs/ --run-date <YYYY-MM-DD>
+```
 
 ### 1. Environment Setup
 
@@ -174,6 +181,10 @@ python evaluate/metric_calc.py \
   --rubric-file data/LiveMedBench_v202601.json \
   --evaluation-dir outputs \
   --output-file outputs/metric_results.txt
+```
+
+```bash
+python evaluate/metric_calc_by_ax_caseid.py --rubric-file data/subset-livemedbench/Subset_LiveMedBench_v202604_new.json --evaluation-dir outputs --output-file outputs/metrics-by_ax_per_case_<modelname>_<YYYY-MM-DD>.json
 ```
 
 ---
