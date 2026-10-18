@@ -244,6 +244,10 @@ def main() -> None:
         all_model_scores[model_name] = case_scores
         print(f"    ✓ {len(case_scores)} cases with scores.")
 
+    ################# NEW 
+    with open(f'{eval_dir}/metric_all.json', 'w', encoding='utf-8') as f:
+        json.dump(all_model_scores, f, ensure_ascii=False, indent=4)
+
     # Group by year-month
     print("\nAggregating scores by year-month...")
     monthly_scores: Dict[str, Dict[str, List[float]]] = defaultdict(
