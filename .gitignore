@@ -24,6 +24,7 @@ ENV/
 
 # Data and outputs (download separately)
 data/
+notebooks/
 outputs/
 
 # Environment variables
