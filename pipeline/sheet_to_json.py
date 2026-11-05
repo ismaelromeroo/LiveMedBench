@@ -31,6 +31,19 @@ Usage:
         --subset-file data/Subset_LiveMedBench_v202604_new.json \
         --output-dir outputs/ \
         --run-date 2026-08-10
+
+JSON input (model output from evaluate/run_model.py, e.g. GPT-5.2):
+    Pass --input-json to read a run_model.py results file instead of the Form
+    CSV. Each record is mapped onto the same row shape as the CSV, so the rest
+    of the workflow (analysis, subset join, outputs) is unchanged. Without the
+    flag, the CSV workflow runs exactly as before.
+
+    python3 pipeline/sheet_to_json.py \
+        --input-csv outputs/gpt52_1/gpt_results_1.json --input-json \
+        --model-name GPT-5.2 \
+        --subset-file data/Subset_LiveMedBench_v202604_new.json \
+        --output-dir outputs/gpt52_1 \
+        --run-date 2026-10-05
 """
 
 import argparse
@@ -337,6 +350,28 @@ def load_rows(input_csv: Path) -> list[dict]:
         return list(reader)
 
 
+def load_json_rows(input_json: Path, model_name: str) -> list[dict]:
+    """
+    Load a run_model.py results file and map each record onto the CSV row
+    shape (COLUMN_MAP headers), so convert() can process it unchanged.
+
+    run_model.py records carry case_id and model_response but no model name
+    or source URL; the model name comes from --model-name and the source URL
+    is left empty.
+    """
+    with input_json.open("r", encoding="utf-8") as f:
+        records = json.load(f)
+    return [
+        {
+            COLUMN_MAP["model"]: model_name,
+            COLUMN_MAP["case_id"]: str(record.get("case_id", "")),
+            COLUMN_MAP["model_response"]: record.get("model_response") or "",
+            COLUMN_MAP["source_url"]: "",
+        }
+        for record in records
+    ]
+
+
 def load_subset_cases(subset_file: Path) -> dict[str, dict]:
     """
     Load Subset_LiveMedBench_v202604_new.json (STAGE 1 output) and key it by
@@ -385,8 +420,13 @@ def convert(
     subset_file: Path,
     output_dir: Path,
     run_date: str,
+    input_is_json: bool = False,
+    model_name: Optional[str] = None,
 ) -> None:
-    rows = load_rows(input_csv)
+    if input_is_json:
+        rows = load_json_rows(input_csv, model_name or input_csv.stem)
+    else:
+        rows = load_rows(input_csv)
     print(f"Loaded {len(rows)} rows from {input_csv}")
 
     subset_cases = load_subset_cases(subset_file)
@@ -494,6 +534,16 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--input-csv", type=str, required=True)
     parser.add_argument(
+        "--input-json", action="store_true",
+        help="Treat --input-csv as a run_model.py results JSON (e.g. GPT-5.2 "
+             "output) instead of the Form CSV export.",
+    )
+    parser.add_argument(
+        "--model-name", type=str, default=None,
+        help="Model label for --input-json runs (run_model.py output has no "
+             "model field). Defaults to the input file name.",
+    )
+    parser.add_argument(
         "--subset-file", type=str, required=True,
         help="STAGE 1 output, e.g. data/Subset_LiveMedBench_v202604_new.json",
     )
@@ -512,6 +562,8 @@ def main() -> None:
         Path(args.subset_file),
         Path(args.output_dir),
         args.run_date,
+        input_is_json=args.input_json,
+        model_name=args.model_name,
     )
 
 
