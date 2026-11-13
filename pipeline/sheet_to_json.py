@@ -41,7 +41,7 @@ JSON input (model output from evaluate/run_model.py, e.g. GPT-5.2):
     python3 pipeline/sheet_to_json.py \
         --input-csv outputs/gpt52_1/gpt_results_1.json --input-json \
         --model-name GPT-5.2 \
-        --subset-file data/Subset_LiveMedBench_v202604_new.json \
+        --subset-file data/subset-livemedbench/Subset_LiveMedBench_v202604_new.json \
         --output-dir outputs/gpt52_1 \
         --run-date 2026-10-05
 """

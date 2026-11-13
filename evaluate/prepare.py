@@ -1,6 +1,5 @@
 """Step 1: Collect scores, rubric judgments, and response-text metadata.
 
-Place these scripts in LiveMedBench/evaluate/ and run from anywhere.
 Existing evaluation files are read only; outputs go to outputs/analysis/research/.
 """
 import json
